@@ -1,6 +1,7 @@
 package com.davigotxi.springfilesuploader;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -59,6 +60,19 @@ public class FileUploadController {
         storageService.store(file);
         redirectAttributes.addFlashAttribute("message",
                 "You successfully uploaded " + file.getOriginalFilename() + "!");
+
+        return "redirect:/";
+    }
+
+    @PostMapping("/uploadFiles")
+    public String handleMultipleFilesUpload(@RequestParam("files") MultipartFile[] files, RedirectAttributes redirectAttributes) {
+
+        Arrays.asList(files)
+                .stream()
+                .forEach(file -> storageService.store(file));
+
+        redirectAttributes.addFlashAttribute("message",
+                "You successfully uploaded all files!");
 
         return "redirect:/";
     }
