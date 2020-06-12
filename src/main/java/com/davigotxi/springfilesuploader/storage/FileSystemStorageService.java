@@ -24,7 +24,7 @@ public class FileSystemStorageService implements StorageService {
 
     @Autowired
     public FileSystemStorageService(StorageProperties properties) {
-        this.rootLocation = Paths.get(properties.getLocation());
+        rootLocation = Paths.get(properties.getLocation());
     }
 
     @Override
@@ -40,10 +40,13 @@ public class FileSystemStorageService implements StorageService {
                         "Cannot store file with relative path outside current directory "
                                 + filename);
             }
+
+            Path tmpLocation = rootLocation.resolve(filename + ".part");
+            Path finalLocation = rootLocation.resolve(filename);
             try (InputStream inputStream = file.getInputStream()) {
-                Files.copy(inputStream, this.rootLocation.resolve(filename),
-                        StandardCopyOption.REPLACE_EXISTING);
+                Files.copy(inputStream, tmpLocation, StandardCopyOption.REPLACE_EXISTING);
             }
+            Files.move(tmpLocation, finalLocation);
         }
         catch (IOException e) {
             throw new StorageException("Failed to store file " + filename, e);
